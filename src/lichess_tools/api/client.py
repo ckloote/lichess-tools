@@ -43,7 +43,7 @@ class LichessClient:
             time.sleep(self._rate_limit_delay - elapsed)
         self._last_request_time = time.monotonic()
 
-    def _raise_for_status(self, response: httpx.Response) -> None:
+    def _raise_for_status(self, response: httpx.Response, *, streaming: bool = False) -> None:
         if response.status_code == 401:
             raise AuthError("Invalid or missing API token.", status_code=401)
         if response.status_code == 403:
@@ -51,6 +51,8 @@ class LichessClient:
         if response.status_code == 429:
             raise RateLimitError("Rate limit exceeded.", status_code=429)
         if response.status_code >= 400:
+            if streaming:
+                response.read()
             raise LichessAPIError(
                 f"API error {response.status_code}: {response.text[:200]}",
                 status_code=response.status_code,
@@ -102,7 +104,7 @@ class LichessClient:
             params=params,
             headers={"Accept": "application/x-ndjson"},
         ) as response:
-            self._raise_for_status(response)
+            self._raise_for_status(response, streaming=True)
             for line in response.iter_lines():
                 line = line.strip()
                 if line:
@@ -117,6 +119,6 @@ class LichessClient:
             params=params,
             headers={"Accept": "application/x-chess-pgn"},
         ) as response:
-            self._raise_for_status(response)
+            self._raise_for_status(response, streaming=True)
             for line in response.iter_lines():
                 yield line
