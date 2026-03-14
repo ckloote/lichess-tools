@@ -81,20 +81,10 @@ lichess studies export --filter "name:~repertoire" --output repertoire.pgn
 
 ### `lichess accounts`
 
-**List blocked users:**
+**Unblock** a user:
 
 ```bash
-lichess accounts list-blocked
-```
-
-**Unblock** users matching filters:
-
-```bash
-# Preview
-lichess accounts unblock --filter "username:~bot" --dry-run
-
-# Unblock after confirmation
-lichess accounts unblock --filter "username:~bot"
+lichess accounts unblock someusername
 ```
 
 ---
